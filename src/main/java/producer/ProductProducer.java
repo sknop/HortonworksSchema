@@ -14,15 +14,15 @@ import java.util.Random;
 public class ProductProducer {
 
     private final Properties config = new Properties();
-    private final String bootstrapServers = "localhost:9091";
-    private final String schemaRegistryURL = "http://localhost:9090/api/v1";
-    private final String productTopic = "product";
 
     private final Random random = new Random();
 
     public ProductProducer() {
+        String bootstrapServers = "localhost:9091";
+        String schemaRegistryURL = "http://localhost:9090/api/v1";
+
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.putAll(Collections.singletonMap(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(),schemaRegistryURL));
+        config.put(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(), schemaRegistryURL);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
     }
@@ -36,10 +36,13 @@ public class ProductProducer {
             String description = "description_" + productId;
 
             schema.Product product = new schema.Product(productId, productName, description);
+            String productTopic = "product";
             ProducerRecord<Integer, schema.Product> record = new ProducerRecord<>(productTopic, productId, product);
 
             producer.send(record);
         }
+        producer.flush();
+        producer.close();
     }
 
     public static void main(String[] args) {
