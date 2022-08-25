@@ -63,6 +63,19 @@ services:
       DB_PORT: 3306
       DB_HOST: db
 
+  schema-registry1:
+    image: confluentinc/cp-schema-registry:7.2.1
+    hostname: schema-registry1
+    container_name: schema-registry1
+    depends_on:
+      - kafka1
+
+    ports:
+      - "8091:8091"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry1
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka1:19091
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8091"
 
 volumes:
   mysqldb_data:
